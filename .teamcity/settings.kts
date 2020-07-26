@@ -1,6 +1,4 @@
 import jetbrains.buildServer.configs.kotlin.v2018_2.*
-import jetbrains.buildServer.configs.kotlin.v2018_2.buildFeatures.Swabra
-import jetbrains.buildServer.configs.kotlin.v2018_2.buildFeatures.swabra
 import jetbrains.buildServer.configs.kotlin.v2018_2.buildSteps.maven
 import jetbrains.buildServer.configs.kotlin.v2018_2.triggers.vcs
 import jetbrains.buildServer.configs.kotlin.v2018_2.vcs.GitVcsRoot
@@ -30,39 +28,39 @@ To debug in IntelliJ Idea, open the 'Maven Projects' tool window (View
 version = "2018.2"
 
 project {
-    vcsRoot(PetclinicVcs)
+
+    vcsRoot(HttpsGithubComGbmeukSpringPetclinicRefsHeadsMain)
+
     buildType(Build)
 }
 
 object Build : BuildType({
     name = "Build"
-    artifactRules = "target/*jar"
 
     vcs {
-        root(PetclinicVcs)
+        root(HttpsGithubComGbmeukSpringPetclinicRefsHeadsMain)
     }
+
     steps {
         maven {
-            goals = "clean package"
-            dockerImage = "maven:3.6.0-jdk-8"
+            goals = "clean test"
+            runnerArgs = "-Dmaven.test.failure.ignore=true"
+            mavenVersion = defaultProvidedVersion()
         }
     }
+
     triggers {
         vcs {
-            groupCheckinsByCommitter = true
         }
     }
 })
 
-object PetclinicVcs : GitVcsRoot({
-    name = "PetclinicVcs"
-    url = "https://github.com/spring-projects/spring-petclinic.git"
-})
-
-
-fun wrapWithFeature(buildType: BuildType, featureBlock: BuildFeatures.() -> Unit): BuildType {
-    buildType.features {
-        featureBlock()
+object HttpsGithubComGbmeukSpringPetclinicRefsHeadsMain : GitVcsRoot({
+    name = "https://github.com/gbmeuk/spring-petclinic#refs/heads/main"
+    url = "https://github.com/gbmeuk/spring-petclinic"
+    branch = "refs/heads/main"
+    authMethod = password {
+        userName = "gbmeuk"
+        password = ""
     }
-    return buildType
-}
+})
